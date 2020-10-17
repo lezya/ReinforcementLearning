@@ -51,21 +51,21 @@ def printV(V, grid):
             print('%.2f' % V[state], end='\t')
         print('\n')
     print('--------------------')
-
-def printV(V, grid):
+"""
+def printPolicy(policy, grid):
     for idx, row in enumerate(grid.grid):
         for idy, _ in enumerate(row):
-            state = grid.m * idx+idy
+            state = grid.m * idx + idy
             if not grid.isTerminalState(state):
                 if state not in grid.magicSquares.keys():
-                    print('%s' % policy[state], end = '\t')
+                    print('%s' % policy[state], end='\t')
                 else:
                     print('%s' % '--', end='\t')
             else:
                 print('%s' % '--', end='\t')
         print('\n')
-    print('--------------------------------')
-
+    print('--------------------')
+"""
 def evaluatePolicy(grid, V, policy, GAMMA,THETA):
     converged = False
     while not converged:
