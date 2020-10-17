@@ -114,6 +114,44 @@ def improvePolicy(grid, V, policy, GAMMA):    #We try to find the best policy fo
     print(i, 'sweeps of state space in Policy Improvement')
     return stable, newPolicy
 
+def iterateValues(grid, V, policy, GAMMA, THETA):
+    converged = False
+    i=0
+    while not converged:
+        DELTA = 0
+        for state in grid.stateSpace:
+            i += 1
+            oldV = V[state]
+            newV  = []
+            for action in grid.possibleActions:
+                for key in grid.P:
+                    (newState, reward, oldState, act) = key
+                    if state == oldState and action == act:
+                        newV.append(grid.P[key]*(reward + GAMMA * V[newState]))
+            newV = np.array(newV)
+            bestV = np.where(newV == newV.max())[0]
+            bestState = np.random.choice(bestV)
+            V[state] = newV[bestState]
+            DELTA = max(DELTA, np.abs(oldV - V[state]))
+            converged = True if DELTA < THETA else False
+    for state in grid.stateSpace:
+        newValues = []
+        actions = []
+        i += 1
+        for action in grid.possibleActions:
+            for key in grid.P:
+                (newState, reward, oldState, act) = key
+                if state == oldState and action == act:
+                    newValues.append(grid.P[key] * (reward + GAMMA * V[newState]))
+            actions.append(action)
+        newValues = np.array(newValues)
+        bestActionIDX = np.where(newValues == newValues.max())[0]
+        bestActions = actions[bestActionIDX[0]]
+        policy[state] = bestActions
+
+    print(i, 'sweeps of state space for value iterations')
+    return V, policy
+
 if __name__ == '__main__':
     magicSquares = {18: 54, 63: 14}
     env = GridWorld(9,9,magicSquares)
@@ -126,6 +164,7 @@ if __name__ == '__main__':
     policy = {}
     for state in env.stateSpace:
         policy[state] = env.possibleActions
+        """
 
     stable = False
     while not stable:
@@ -135,4 +174,43 @@ if __name__ == '__main__':
     printV(V, env)
     print('\n----------------------------------------------\n')
     printPolicy(policy, env)
+"""
+    for i in range(2):
+        V, policy = iterateValues(env, V, policy, GAMMA, THETA)
+        printV(V, env)
+        printPolicy(policy, env)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
