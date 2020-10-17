@@ -135,42 +135,4 @@ if __name__ == '__main__':
     printV(V, env)
     print('\n----------------------------------------------\n')
     printPolicy(policy, env)
-    print(i)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ntV(V, env)
