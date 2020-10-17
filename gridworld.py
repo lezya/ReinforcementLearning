@@ -47,7 +47,7 @@ class GridWorld(object):
         if newState not in self.stateSpacePlus:
             return True
 
-        elif oldState % self.m == 0 and newState % self.m == self.m - 1:
+        elif oldState % self.m == 0 and newState % self.m == self.m - 1:  #to make sure we don't automatically jump from 1st row to next, we gave to loose -1 point forthat as well
             return True
 
         elif oldState % self.m == self.m-1 and newState % self.m == 0:
