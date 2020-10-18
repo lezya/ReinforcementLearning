@@ -78,7 +78,7 @@ def evaluatePolicy(grid, V, policy, GAMMA,THETA):
                 for key in grid.P:
                     (newState, reward, oldState, act) = key
                     if oldState == state and act == action:
-                        total += weight*grid.P[key]* (reward + GAMMA * V[newState])
+                        total += weight*grid.P[key]* (reward + GAMMA * V[newState])  #Refer formula 3.14 in Sutton and Burto Book
             V[state] = total
             DELTA = max(DELTA, np.abs(oldV - V[state]))
             converged = True if DELTA < THETA else False
@@ -99,45 +99,3 @@ if __name__ == '__main__':
         policy[state] = env.possibleActions
     V = evaluatePolicy(env, V, policy, GAMMA,THETA)
     printV(V, env)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -179,38 +179,3 @@ if __name__ == '__main__':
         V, policy = iterateValues(env, V, policy, GAMMA, THETA)
         printV(V, env)
         printPolicy(policy, env)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

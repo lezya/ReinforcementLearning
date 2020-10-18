@@ -47,7 +47,8 @@ class GridWorld(object):
         if newState not in self.stateSpacePlus:
             return True
 
-        elif oldState % self.m == 0 and newState % self.m == self.m - 1:  #to make sure we don't automatically jump from 1st row to next, we gave to loose -1 point forthat as well
+        elif oldState % self.m == 0 and newState % self.m == self.m - 1:  #to make sure we don't automatically jump from 1st row
+            # to next, at the end of the row there should ideally be a walla and going to the wall must earn it -1 and it must stay on the same state
             return True
 
         elif oldState % self.m == self.m-1 and newState % self.m == 0:
