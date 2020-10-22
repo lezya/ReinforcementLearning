@@ -1,6 +1,8 @@
 import numpy as np
 import  matplotlib.pyplot as plt
 import gym
+#Studied from : https://github.com/philtabor/Youtube-Code-Repository/blob/master/ReinforcementLearning/Fundamentals/sarsa.py
+
 
 def maxAction(Q, state):
     values = np.array([Q[state, a] for a in range(2)])
@@ -8,7 +10,7 @@ def maxAction(Q, state):
     return action
 
 #descretize the space
-poleThetaSpace    = np.linspace(-0.20943951,0.20943951,10)
+poleThetaSpace    = np.linspace(-0.20943951,0.20943951,10)  #These Values are the limits of the variables from the Cartpole Example from GYM
 poleThetaVelSpace = np.linspace(-4,4,10)
 cartPosSpace      = np.linspace(-2-4,2.4,10)
 cartVelSpace      = np.linspace(-4,4,10)
@@ -48,7 +50,7 @@ if __name__ == '__main__':
         if i % 5000 == 0:
             print('starting game', i)
 
-        #cart x position, cart Velkocity, oüpole theta, pole Valöocity
+        #cart x position, cart Velkocity, pole theta, pole Valöocity
         observation = env.reset()
         s = getState(observation)
         rand = np.random.random()
