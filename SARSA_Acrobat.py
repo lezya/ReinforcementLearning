@@ -1,7 +1,7 @@
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
-
+#Link to the Video to be followed; https://www.youtube.com/watch?v=gJZwXkXDFEI&list=PL-9x0_FO_lglnlYextpvu39E7vWzHhtNO&index=8
 theta_space =     np.linspace(-1,-1,10)
 theta_dot_space = np.linspace(-5,5,10)
 
