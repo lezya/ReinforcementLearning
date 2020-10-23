@@ -1,135 +1,116 @@
-import numpy as np
-import  matplotlib.pyplot as plt
-import gym
+
 #Studied from : https://github.com/philtabor/Youtube-Code-Repository/blob/master/ReinforcementLearning/Fundamentals/sarsa.py
+#SARSA is an extension of On-Policy Temporal Difference Learning (TD Learning), its based of MONTE
+#Carlo Method of solving
+import gym
+import numpy as np
+import matplotlib.pyplot as plt
 
-
-def maxAction(Q, state):
-    values = np.array([Q[state, a] for a in range(2)])
-    action = np.argmax(values)
-    return action
-
-#descretize the space
-poleThetaSpace    = np.linspace(-0.20943951,0.20943951,10)  #These Values are the limits of the variables from the Cartpole Example from GYM
-poleThetaVelSpace = np.linspace(-4,4,10)
-cartPosSpace      = np.linspace(-2-4,2.4,10)
-cartVelSpace      = np.linspace(-4,4,10)
-
-def getState(observation):
-    cartX, cartXdot, cartTheta, cartThetadot = observation
-    cartX         = int(np.digitize(cartX, cartPosSpace))
-    cartXdot      = int(np.digitize(cartXdot, cartVelSpace))
-    cartTheta     = int(np.digitize(cartTheta, poleThetaSpace))
-    cartThetadot  = int(np.digitize(cartThetadot, poleThetaVelSpace))
-
-    return (cartX, cartXdot, cartTheta, cartThetadot)
+#The Game being played here is BlackJack
 
 if __name__ == '__main__':
-    env  = gym.make('CartPole-v0')
-     # model hyperparamters
-    ALPHA = 0.1
-    GAMMA = 0.9
-    EPS   = 1.0
-
-    #construct state Space
-    states = []
-    for i in range(len(cartPosSpace)+1):
-        for j in range(len(cartVelSpace)+1):
-            for k in range(len(poleThetaSpace)+1):
-                for l in range(len(poleThetaVelSpace)+1):
-                    states.append((i,j,k,l))
+    env = gym.make('Blackjack-v0')
+    EPS = 0.05
+    GAMMA = 1.0
 
     Q = {}
-    for s in states:
-        for a in range(2):
-            Q[s,a] = 0
+    agentSumSpace = [i for i in range(4, 22)]
+    dealerShowCardSpace = [i + 1 for i in range(10)]
+    agentAceSpace = [False, True]
+    actionSpace = [0, 1]  # stick or hit
 
-    numGames = 50000
-    totalRewards = np.zeros(numGames)
-    for i in range(numGames):
-        if i % 5000 == 0:
-            print('starting game', i)
+    stateSpace = []
+    returns = {}
+    pairsVisited = {}
+    for total in agentSumSpace:
+        for card in dealerShowCardSpace:
+            for ace in agentAceSpace:
+                for action in actionSpace:
+                    Q[((total, card, ace), action)] = 0
+                    returns[((total, card, ace), action)] = 0
+                    pairsVisited[((total, card, ace), action)] = 0
+                stateSpace.append((total, card, ace))
 
-        #cart x position, cart Velkocity, pole theta, pole Valöocity
+    policy = {}
+    for state in stateSpace:
+        policy[state] = np.random.choice(actionSpace)
+
+    numEpisodes = 1000000
+    for i in range(numEpisodes):
+        statesActionsReturns = []
+        memory = []
+        if i % 100000 == 0:
+            print('starting episode', i)
         observation = env.reset()
-        s = getState(observation)
-        rand = np.random.random()
-        a = maxAction(Q,s) if rand < (1-EPS) else env.action_space.sample()
         done = False
-        epRewards = 0
-
         while not done:
-            observation_, reward, done, info = env.step(a)
-            s_ = getState(observation_)
-            rand = np.random.random()
-            a_ = maxAction(Q, s_) if rand < (1-EPS) else env.action_space.sample()
-            epRewards += reward
-            Q[s,a] = Q[s,a] + ALPHA*(reward+GAMMA *Q[s_,a_] - Q[s,a])
-            s,a =s_,a_
-            EPS -= 2/(numGames) if EPS > 0 else 0
-            totalRewards[i] = epRewards
+            action = policy[observation]
+            observation_, reward, done, info = env.step(action)
+            memory.append((observation[0], observation[1], observation[2], action, reward))
+            observation = observation_
+        memory.append((observation[0], observation[1], observation[2], action, reward))
 
+        G = 0
+        last = True
+        for playerSum, dealerCard, usableAce, action, reward in reversed(memory):
+            if last:
+                last = False
+            else:
+                statesActionsReturns.append((playerSum, dealerCard, usableAce, action, G))
+            G = GAMMA * G + reward
 
-    plt.plot(totalRewards, 'b--')
+        statesActionsReturns.reverse()
+        statesActionsVisited = []
+
+        for playerSum, dealerCard, usableAce, action, G in statesActionsReturns:
+            sa = ((playerSum, dealerCard, usableAce), action)
+            if sa not in statesActionsVisited:
+                pairsVisited[sa] += 1
+                # incremental implementation
+                # new estimate = 1 / N * [sample - old estimate]
+                returns[(sa)] += (1 / pairsVisited[(sa)]) * (G - returns[(sa)])
+                Q[sa] = returns[sa]
+                rand = np.random.random()
+                if rand < 1 - EPS:
+                    state = (playerSum, dealerCard, usableAce)
+                    values = np.array([Q[(state, a)] for a in actionSpace])
+                    best = np.random.choice(np.where(values == values.max())[0])
+                    policy[state] = actionSpace[best]
+                else:
+                    policy[state] = np.random.choice(actionSpace)
+                statesActionsVisited.append(sa)
+        if EPS - 1e-7 > 0:
+            EPS -= 1e-7
+        else:
+            EPS = 0
+
+    numEpisodes = 1000
+    rewards = np.zeros(numEpisodes)
+    totalReward = 0
+    wins = 0
+    losses = 0
+    draws = 0
+    print('getting ready to test policy')
+    for i in range(numEpisodes):
+        observation = env.reset()
+        done = False
+        while not done:
+            action = policy[observation]
+            observation_, reward, done, info = env.step(action)
+            observation = observation_
+        totalReward += reward
+        rewards[i] = totalReward
+
+        if reward >= 1:
+            wins += 1
+        elif reward == 0:
+            draws += 1
+        elif reward == -1:
+            losses += 1
+
+    wins /= numEpisodes
+    losses /= numEpisodes
+    draws /= numEpisodes
+    print('win rate', wins, 'loss rate', losses, 'draw rate', draws)
+    plt.plot(rewards)
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
