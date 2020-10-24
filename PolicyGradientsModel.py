@@ -95,9 +95,6 @@ class PolicyGradientAgent(object):
         self.saver.save(self.sess, self.chkpt_file)
 
 
-#https://www.youtube.com/watch?v=UT9pQjVhcaU&t=152s
-
-
 
 
 
