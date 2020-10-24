@@ -12,6 +12,7 @@ class PolicyGradientAgent(object):
         self.state_memory  = []
         self.action_memory = []
         self.reward_memory = []
+        self.input_dims    = input_dims
         self.l1_size       = l1_size
         self.l2_size       = l2_size
         self.sess          = tf.Session()                 #TF session
@@ -24,8 +25,8 @@ class PolicyGradientAgent(object):
     def build_net(self):
         self.input = tf.placeholder(tf.float32, shape = [None, self.input_dims], name = 'input')
 
-        self.label = tf.placeholder(tf.int32, shape =  [None,], label = 'actions')
-        self.G     = tf.placefolder(tf.float32, shape = [None,], label = 'G')
+        self.label = tf.placeholder(tf.int32, shape =  [None,], name = 'actions')
+        self.G     = tf.placefolder(tf.float32, shape = [None,], name = 'G')
 
         with tf.varisble_scope('layers'):
             l1 = tf.layers.dense(inputs = self.input, units = self.l1_size,
